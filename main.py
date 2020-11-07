@@ -5,20 +5,38 @@ Code for QWIC hackHer 2020.
 """
 
 import tkinter as tk
+import time
+from threading import Thread
 from tkinter import messagebox
 
+session_length = "0"
+
 class Test():
+
+    def timer(self):
+        global session_length
+        while float(session_length) / 60 > 0:
+            hours, minutes = divmod(float(session_length), 60)
+            minutes, seconds = divmod(minutes * 60, 60)
+            hours, minutes, seconds = int(hours), int(minutes), int(seconds)
+            timer = "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
+            self.text.set("Time remaining: " + timer)
+            print("time remaining" + timer, end = "\r")
+            time.sleep(1)
+            session_length = (float(session_length) * 60 - 1) / 60
 
     def go_to_study(self):
         current_focus = self.focus_entry.get()
         print(current_focus)
         self.next_button.pack_forget()
         self.focus_entry.pack_forget()
-        self.text("")
+        self.text.set("Time remaining in study session:")
+        timer_thread = Thread(target=self.timer)
+        timer_thread.start()
 
     def get_focus_info(self):
+        global session_length
         session_length = self.time_entry.get()
-        print(session_length)
         self.text.set("How focused are you right now?")
         self.focus_entry.pack()
         self.get_survey_button.pack_forget()
